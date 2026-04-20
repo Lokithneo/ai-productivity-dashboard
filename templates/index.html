@@ -2,16 +2,36 @@
 <html>
 <head>
     <title>Productivity App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap + Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #1d2671, #c33764);
+            color: white;
+            height: 100vh;
+        }
+        .glass {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+        }
+    </style>
 </head>
 
-<body class="bg-dark text-white">
+<body class="d-flex align-items-center justify-content-center">
 
-<div class="container text-center mt-5">
-    <h1 class="display-4">🚀 Productivity Dashboard</h1>
-    <p class="lead">Manage your notes efficiently</p>
+<div class="glass text-center shadow-lg">
+    <h1 class="display-4 fw-bold">🚀 Productivity Dashboard</h1>
+    <p class="lead mt-3">Organize your thoughts. Stay focused. Build consistency.</p>
 
-    <a href="/notes" class="btn btn-primary btn-lg mt-3">Enter App</a>
+    <a href="/notes" class="btn btn-light btn-lg mt-4 px-4">
+        <i class="bi bi-speedometer2"></i> Go to Dashboard
+    </a>
 </div>
 
 </body>
