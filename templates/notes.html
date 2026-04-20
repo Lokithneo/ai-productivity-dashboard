@@ -1,131 +1,58 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Notes Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends "base.html" %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% block content %}
 
-    <style>
-        body { transition: 0.3s; }
-        body.light { background: #f4f6f9; color: black; }
-        body.dark { background: #121212; color: white; }
-
-        .card { border-radius: 15px; transition: 0.2s; }
-        .card:hover { transform: scale(1.02); }
-
-        .fade-in { animation: fadeIn 0.4s ease-in; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-</head>
-
-<body class="light">
-
-<nav class="navbar navbar-dark bg-dark">
-    <div class="container d-flex justify-content-between">
-        <span class="navbar-brand">📝 Notes App</span>
-        <button class="btn btn-outline-light btn-sm" onclick="toggleMode()">🌙</button>
-    </div>
-</nav>
-
-<div class="container mt-4 fade-in">
-
-    <h3>Dashboard <span class="badge bg-primary">Total: {{ total }}</span></h3>
-
-    <!-- Search + Sort -->
-    <form method="GET" class="mb-3">
-        <div class="d-flex gap-2">
-            <input class="form-control" name="search" placeholder="Search..." value="{{ search }}">
-            <select name="sort" class="form-select">
-                <option value="new">Newest</option>
-                <option value="old">Oldest</option>
-                <option value="important">Important</option>
-            </select>
-            <button class="btn btn-primary">Apply</button>
-        </div>
-    </form>
-
-    <!-- Add Note -->
-    <form method="POST" class="mb-4">
-        <input class="form-control" name="note" placeholder="Add new note">
-        <button class="btn btn-success mt-2 w-100">Add</button>
-    </form>
-
-    <!-- Notes -->
-    <div class="row">
-        {% for i, note in notes %}
-        <div class="col-md-6 mb-3 fade-in">
-            <div class="card p-3 shadow-sm">
-
-                <form method="POST" action="/edit/{{ i }}">
-                    <input type="text" name="note" value="{{ note.text }}" class="form-control mb-2">
-
-                    <small class="text-muted">{{ note.time }}</small>
-
-                    <div class="d-flex justify-content-between mt-2">
-
-                        <div>
-                            <button class="btn btn-warning btn-sm">Update</button>
-
-                            <a href="/important/{{ i }}"
-                               class="btn btn-sm {% if note.important %}btn-success{% else %}btn-outline-secondary{% endif %}">
-                                ⭐
-                            </a>
-                        </div>
-
-                        <div>
-                            <button type="button" onclick="copyText('{{ note.text }}')" class="btn btn-info btn-sm">
-                                Copy
-                            </button>
-
-                            <a href="/delete/{{ i }}" class="btn btn-danger btn-sm">Delete</a>
-                        </div>
-
-                    </div>
-                </form>
-
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <a href="/clear" class="btn btn-danger mt-3 w-100">Clear All</a>
-
+<div class="d-flex justify-content-between mb-3">
+    <h4>Notes</h4>
+    <span class="badge bg-primary">Total: {{ total }}</span>
 </div>
 
-<script>
-function toggleMode() {
-    let body = document.body;
-    body.classList.toggle("dark");
-    body.classList.toggle("light");
-    localStorage.setItem("theme", body.className);
-}
+<form method="GET" class="mb-3 d-flex gap-2">
+    <input name="search" class="form-control" placeholder="Search..." value="{{ search }}">
+    
+    <select name="sort" class="form-select">
+        <option value="new">Newest</option>
+        <option value="old">Oldest</option>
+        <option value="important">Important</option>
+    </select>
 
-window.onload = () => {
-    let saved = localStorage.getItem("theme");
-    if (saved) document.body.className = saved;
-}
+    <button class="btn btn-secondary">Apply</button>
+</form>
 
-function copyText(text) {
-    navigator.clipboard.writeText(text);
+<form method="POST" class="mb-4">
+    <input name="note" class="form-control" placeholder="Enter note">
+    <button class="btn btn-success mt-2 w-100">Add</button>
+</form>
 
-    let toast = document.createElement("div");
-    toast.innerText = "Copied!";
-    toast.style.position = "fixed";
-    toast.style.bottom = "20px";
-    toast.style.right = "20px";
-    toast.style.background = "black";
-    toast.style.color = "white";
-    toast.style.padding = "10px";
-    toast.style.borderRadius = "5px";
+<div class="row">
+{% for i, note in notes %}
+<div class="col-md-6 mb-3">
+    <div class="card p-3">
 
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 1500);
-}
-</script>
+        <form method="POST" action="/edit/{{ i }}">
+            <input class="form-control mb-2" name="note" value="{{ note.text }}">
+            <small class="text-muted">{{ note.format_time() }}</small>
 
-</body>
-</html>
+            <div class="d-flex justify-content-between mt-2">
+                <div>
+                    <button class="btn btn-warning btn-sm">Update</button>
+                    <a href="/important/{{ i }}" class="btn btn-sm {% if note.important %}btn-success{% else %}btn-outline-secondary{% endif %}">
+                        Mark
+                    </a>
+                </div>
+
+                <div>
+                    <button type="button" onclick="copyText('{{ note.text }}')" class="btn btn-info btn-sm">Copy</button>
+                    <a href="/delete/{{ i }}" class="btn btn-danger btn-sm">Delete</a>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endfor %}
+</div>
+
+<a href="/clear" class="btn btn-danger w-100 mt-3">Clear All</a>
+
+{% endblock %}

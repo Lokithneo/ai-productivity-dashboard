@@ -1,0 +1,17 @@
+body.light {
+    background: #f4f6f9;
+}
+
+body.dark {
+    background: #121212;
+    color: white;
+}
+
+.card {
+    border-radius: 12px;
+    transition: 0.2s;
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
