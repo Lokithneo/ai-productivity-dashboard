@@ -4,112 +4,86 @@
     <title>Notes Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap + Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-        body {
-            transition: background 0.4s, color 0.4s;
-        }
+        body { transition: 0.3s; }
+        body.light { background: #f4f6f9; color: black; }
+        body.dark { background: #121212; color: white; }
 
-        /* Light mode */
-        body.light {
-            background: #f4f6f9;
-            color: black;
-        }
+        .card { border-radius: 15px; transition: 0.2s; }
+        .card:hover { transform: scale(1.02); }
 
-        /* Dark mode */
-        body.dark {
-            background: #121212;
-            color: white;
-        }
-
-        .card {
-            border-radius: 15px;
-            transition: transform 0.2s;
-        }
-
-        .card:hover {
-            transform: scale(1.02);
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
+        .fade-in { animation: fadeIn 0.4s ease-in; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        .toggle-btn {
-            cursor: pointer;
         }
     </style>
 </head>
 
 <body class="light">
 
-<!-- Navbar -->
-<nav class="navbar navbar-dark bg-dark shadow">
+<nav class="navbar navbar-dark bg-dark">
     <div class="container d-flex justify-content-between">
-        <span class="navbar-brand fw-bold">
-            <i class="bi bi-journal-text"></i> Notes App
-        </span>
-
-        <div>
-            <span class="text-white me-3 toggle-btn" onclick="toggleMode()">
-                <i class="bi bi-moon-stars"></i>
-            </span>
-            <a href="/" class="btn btn-outline-light btn-sm">Home</a>
-        </div>
+        <span class="navbar-brand">📝 Notes App</span>
+        <button class="btn btn-outline-light btn-sm" onclick="toggleMode()">🌙</button>
     </div>
 </nav>
 
 <div class="container mt-4 fade-in">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="fw-bold">📝 Dashboard</h3>
-        <span class="badge bg-primary fs-6">Total: {{ total }}</span>
-    </div>
+    <h3>Dashboard <span class="badge bg-primary">Total: {{ total }}</span></h3>
 
-    <!-- Search -->
+    <!-- Search + Sort -->
     <form method="GET" class="mb-3">
-        <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input class="form-control" name="search" placeholder="Search notes..." value="{{ search }}">
+        <div class="d-flex gap-2">
+            <input class="form-control" name="search" placeholder="Search..." value="{{ search }}">
+            <select name="sort" class="form-select">
+                <option value="new">Newest</option>
+                <option value="old">Oldest</option>
+                <option value="important">Important</option>
+            </select>
+            <button class="btn btn-primary">Apply</button>
         </div>
     </form>
 
     <!-- Add Note -->
-    <div class="card shadow-sm p-3 mb-4">
-        <form method="POST">
-            <input class="form-control mb-2" name="note" placeholder="Write a new note...">
-            <button class="btn btn-success w-100">
-                <i class="bi bi-plus-circle"></i> Add Note
-            </button>
-        </form>
-    </div>
+    <form method="POST" class="mb-4">
+        <input class="form-control" name="note" placeholder="Add new note">
+        <button class="btn btn-success mt-2 w-100">Add</button>
+    </form>
 
     <!-- Notes -->
     <div class="row">
-        {% for note in notes %}
+        {% for i, note in notes %}
         <div class="col-md-6 mb-3 fade-in">
             <div class="card p-3 shadow-sm">
 
-                <form method="POST" action="/edit/{{ loop.index0 }}">
-                    <input type="text" name="note" value="{{ note }}" class="form-control mb-2">
+                <form method="POST" action="/edit/{{ i }}">
+                    <input type="text" name="note" value="{{ note.text }}" class="form-control mb-2">
 
-                    <div class="d-flex justify-content-between">
-                        <button class="btn btn-warning btn-sm">
-                            <i class="bi bi-pencil"></i>
-                        </button>
+                    <small class="text-muted">{{ note.time }}</small>
 
-                        <a href="/delete/{{ loop.index0 }}" class="btn btn-danger btn-sm">
-                            <i class="bi bi-trash"></i>
-                        </a>
+                    <div class="d-flex justify-content-between mt-2">
+
+                        <div>
+                            <button class="btn btn-warning btn-sm">Update</button>
+
+                            <a href="/important/{{ i }}"
+                               class="btn btn-sm {% if note.important %}btn-success{% else %}btn-outline-secondary{% endif %}">
+                                ⭐
+                            </a>
+                        </div>
+
+                        <div>
+                            <button type="button" onclick="copyText('{{ note.text }}')" class="btn btn-info btn-sm">
+                                Copy
+                            </button>
+
+                            <a href="/delete/{{ i }}" class="btn btn-danger btn-sm">Delete</a>
+                        </div>
+
                     </div>
                 </form>
 
@@ -118,33 +92,39 @@
         {% endfor %}
     </div>
 
-    <!-- Actions -->
-    <div class="text-center mt-3">
-        <a href="/clear" class="btn btn-outline-danger">
-            <i class="bi bi-x-circle"></i> Clear All
-        </a>
-    </div>
+    <a href="/clear" class="btn btn-danger mt-3 w-100">Clear All</a>
 
 </div>
 
-<!-- JS for Dark Mode -->
 <script>
-    function toggleMode() {
-        let body = document.body;
-        body.classList.toggle("dark");
-        body.classList.toggle("light");
+function toggleMode() {
+    let body = document.body;
+    body.classList.toggle("dark");
+    body.classList.toggle("light");
+    localStorage.setItem("theme", body.className);
+}
 
-        // save preference
-        localStorage.setItem("theme", body.className);
-    }
+window.onload = () => {
+    let saved = localStorage.getItem("theme");
+    if (saved) document.body.className = saved;
+}
 
-    // load saved mode
-    window.onload = () => {
-        let saved = localStorage.getItem("theme");
-        if (saved) {
-            document.body.className = saved;
-        }
-    }
+function copyText(text) {
+    navigator.clipboard.writeText(text);
+
+    let toast = document.createElement("div");
+    toast.innerText = "Copied!";
+    toast.style.position = "fixed";
+    toast.style.bottom = "20px";
+    toast.style.right = "20px";
+    toast.style.background = "black";
+    toast.style.color = "white";
+    toast.style.padding = "10px";
+    toast.style.borderRadius = "5px";
+
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 1500);
+}
 </script>
 
 </body>
