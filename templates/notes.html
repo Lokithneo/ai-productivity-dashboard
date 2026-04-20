@@ -10,38 +10,64 @@
 
     <style>
         body {
-            background: #f4f6f9;
+            transition: background 0.4s, color 0.4s;
         }
+
+        /* Light mode */
+        body.light {
+            background: #f4f6f9;
+            color: black;
+        }
+
+        /* Dark mode */
+        body.dark {
+            background: #121212;
+            color: white;
+        }
+
         .card {
             border-radius: 15px;
+            transition: transform 0.2s;
         }
-        .note-input {
-            border-radius: 10px;
-        }
-        .note-item {
-            border-radius: 10px;
-            transition: 0.2s;
-        }
-        .note-item:hover {
+
+        .card:hover {
             transform: scale(1.02);
-            background: #f8f9fa;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .toggle-btn {
+            cursor: pointer;
         }
     </style>
 </head>
 
-<body>
+<body class="light">
 
 <!-- Navbar -->
 <nav class="navbar navbar-dark bg-dark shadow">
-    <div class="container">
+    <div class="container d-flex justify-content-between">
         <span class="navbar-brand fw-bold">
             <i class="bi bi-journal-text"></i> Notes App
         </span>
-        <a href="/" class="btn btn-outline-light btn-sm">Home</a>
+
+        <div>
+            <span class="text-white me-3 toggle-btn" onclick="toggleMode()">
+                <i class="bi bi-moon-stars"></i>
+            </span>
+            <a href="/" class="btn btn-outline-light btn-sm">Home</a>
+        </div>
     </div>
 </nav>
 
-<div class="container mt-4">
+<div class="container mt-4 fade-in">
 
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -60,25 +86,25 @@
     <!-- Add Note -->
     <div class="card shadow-sm p-3 mb-4">
         <form method="POST">
-            <input class="form-control note-input" name="note" placeholder="Write a new note...">
-            <button class="btn btn-success mt-2 w-100">
+            <input class="form-control mb-2" name="note" placeholder="Write a new note...">
+            <button class="btn btn-success w-100">
                 <i class="bi bi-plus-circle"></i> Add Note
             </button>
         </form>
     </div>
 
-    <!-- Notes List -->
+    <!-- Notes -->
     <div class="row">
         {% for note in notes %}
-        <div class="col-md-6 mb-3">
-            <div class="card note-item p-3 shadow-sm">
+        <div class="col-md-6 mb-3 fade-in">
+            <div class="card p-3 shadow-sm">
 
                 <form method="POST" action="/edit/{{ loop.index0 }}">
                     <input type="text" name="note" value="{{ note }}" class="form-control mb-2">
 
                     <div class="d-flex justify-content-between">
                         <button class="btn btn-warning btn-sm">
-                            <i class="bi bi-pencil"></i> Update
+                            <i class="bi bi-pencil"></i>
                         </button>
 
                         <a href="/delete/{{ loop.index0 }}" class="btn btn-danger btn-sm">
@@ -100,6 +126,26 @@
     </div>
 
 </div>
+
+<!-- JS for Dark Mode -->
+<script>
+    function toggleMode() {
+        let body = document.body;
+        body.classList.toggle("dark");
+        body.classList.toggle("light");
+
+        // save preference
+        localStorage.setItem("theme", body.className);
+    }
+
+    // load saved mode
+    window.onload = () => {
+        let saved = localStorage.getItem("theme");
+        if (saved) {
+            document.body.className = saved;
+        }
+    }
+</script>
 
 </body>
 </html>
