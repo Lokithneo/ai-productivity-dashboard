@@ -7,7 +7,7 @@ def home():
     result = None
     if request.method == 'POST':
         name = request.form.get('name')
-        result = f"Hello {name}, welcome to your Jenkins App 🚀"
+        result = f"Hello {name}, welcome to your Jenkins App after correction "
     return render_template('index.html', result=result)
 
 if __name__ == '__main__':
