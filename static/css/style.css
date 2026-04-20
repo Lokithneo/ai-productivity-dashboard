@@ -1,17 +1,10 @@
-body.light {
-    background: #f4f6f9;
-}
-
-body.dark {
-    background: #121212;
+body {
+    font-family: Arial;
+    text-align: center;
+    background: #0f172a;
     color: white;
 }
 
-.card {
-    border-radius: 12px;
-    transition: 0.2s;
-}
-
-.card:hover {
-    transform: scale(1.02);
+a {
+    color: cyan;
 }
